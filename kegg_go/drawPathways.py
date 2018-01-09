@@ -91,15 +91,27 @@ for k in kegg:
             for graphic in element.graphics:
                 #graphic.name = "myEC"
                 stats[k]["all"] += 1 
-                if graphic.name[:6] in KOToEC:
+                if ":" not in graphic.name:
+                    graphicName =  graphic.name.split(" ")
+                else:
+                    graphicName =  [x.split(":")[1] for x in graphic.name.split(" ")]
+                graphicName = set([x.replace(".","") for x in graphicName])    
+
+                if len(list(filter(lambda x : x in KOToEC, graphicName))) > 0:
                     if graphic.bgcolor not in colorCodes.values():
                         defaultBG = graphic.bgcolor
-                    mb42 = [ec for ec in KOToEC[graphic.name[:6]] if ec in ecToGeneOrg[mb42Name]]
-                    lev = [ec for ec in KOToEC[graphic.name[:6]] if ec in ecToGeneOrg[levName]]
+                    mb42 = []
+                    lev = []
+                    for gN in graphicName:
+                        mb42.extend([ec for ec in KOToEC[gN] if ec in ecToGeneOrg[mb42Name]])
+                        lev.extend([ec for ec in KOToEC[gN] if ec in ecToGeneOrg[levName]])
                     orgOverview = defaultdict(list)
                     orgCount = 0
                     for o in ecToGeneOrg.keys():
-                        orgOverview[o] = [ec for ec in KOToEC[graphic.name[:6]] if ec in ecToGeneOrg[o]]
+                        orgOverview[o] = []
+                        
+                        for gN in graphicName:
+                            orgOverview[o].extend([ec for ec in KOToEC[gN] if ec in ecToGeneOrg[o]])
                         if len(orgOverview[o]) > 0:
                             stats[k][o] += 1
                             if o not in [mb42Name,levName]:

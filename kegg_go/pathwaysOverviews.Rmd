@@ -1,0 +1,78 @@
+---
+title: "SENDO Pathways"
+author: "Sven Warris"
+date: "8 januari 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(knitr)
+```
+
+
+## Introduction
+
+This report shows the predictive value of Interproscan for KEGG pathway analyses. For this six different reference species are used.
+
+## Definitions
+
+- Positive : number of positive elements in the pathway: these elements are present in the reference species (P)
+- Negative: number of negative elements in the pathway: these elements are *not* present in the reference species (N)
+- True positive (TP): element in the reference pathway correctly predicted by Interproscan
+- True negative (TN): element in the *not* reference pathway and *not* predicted by Interproscan
+- False positive (FP): element in the *not* reference pathway but predicted by Interproscan. Note could also be a valid new prediction
+- False negative (FN): element in the reference pathway but  *not* predicted by Interproscan.
+- No EC (noEC): Some elements in the pathways have no EC number record in the database. These cannot be mapped to the interproscan output containing only EC numbers and are left out of the calculations
+
+
+sensitivity or true positive rate (TPR): $TPR = \frac{TP}{P} = \frac{TP}{ TP + FN }$
+
+specificity (SPC) or true negative rate: $SPC = \frac{TN}{N} = \frac{TN}{ TN + FP }$
+
+accuracy (ACC) : $ACC = \frac{TP + TN }{TP + FP + FN + TN }$
+
+## Pathway analyses
+
+Each of the six reference species have a different set of reference pathways. For the following statistical overview, all pathways which are not part of the reference sets are left out: determining *positive* and *negatives* is impossible for these.
+
+```{r echo=FALSE, error=FALSE, message=FALSE}
+cne <- subset(read_delim("stats_cne.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE), positives > 0)
+mlr <- subset(read_delim("stats_mlr.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE), positives > 0)
+ncr <- subset(read_delim("stats_ncr.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE), positives > 0)
+pgr <- subset(read_delim("stats_pgr.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE), positives > 0)
+sce <- subset(read_delim("stats_sce.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE), positives > 0)
+uma <- subset(read_delim("stats_uma.csv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE), positives > 0)
+
+species = c('CNE', 'MLR', 'NCR', 'PGR', 'SCE', 'UMA')
+culturable = c('CULT', 'OBL', 'CULT', 'OBL', 'CULT', 'OBL')
+pathways = c(length(cne$KEGG), length(mlr$KEGG),length(ncr$KEGG),length(pgr$KEGG),length(sce$KEGG),length(uma$KEGG))
+sensitivity = c(sum(cne$TP)/sum(cne$positives),
+                sum(mlr$TP)/sum(mlr$positives),
+                sum(ncr$TP)/sum(ncr$positives),
+                sum(pgr$TP)/sum(pgr$positives),
+                sum(sce$TP)/sum(sce$positives),
+                sum(uma$TP)/sum(uma$positives))
+specificity = c(sum(cne$TN)/sum(cne$negatives),
+                sum(mlr$TN)/sum(mlr$negatives),
+                sum(ncr$TN)/sum(ncr$negatives),
+                sum(pgr$TN)/sum(pgr$negatives),
+                sum(sce$TN)/sum(sce$negatives),
+                sum(uma$TN)/sum(uma$negatives))
+accuracy = c(sum(cne$TP + cne$TN) / sum(cne$TP + cne$FP + cne$FN + cne$TN), 
+             sum(mlr$TP + mlr$TN) / sum(mlr$TP + mlr$FP + mlr$FN + mlr$TN),
+             sum(ncr$TP + ncr$TN) / sum(ncr$TP + ncr$FP + ncr$FN + ncr$TN),
+             sum(pgr$TP + pgr$TN) / sum(pgr$TP + pgr$FP + pgr$FN + pgr$TN),
+             sum(sce$TP + sce$TN) / sum(sce$TP + sce$FP + sce$FN + sce$TN),
+             sum(uma$TP + uma$TN) / sum(uma$TP + uma$FP + uma$FN + uma$TN))
+kable(data.frame(species, culturable, pathways, sensitivity, specificity, accuracy), digits = 2)
+
+```
+

@@ -4,11 +4,13 @@ from Bio.KEGG.KGML import KGML_parser
 from Bio.Graphics.KGML_vis import KGMLCanvas
 from Bio.Graphics.ColorSpiral import ColorSpiral
 from collections import defaultdict
+from enum import Enum
 import sys
 import os
 import re
 
 from pprint import pprint
+
 
 
 """
@@ -20,6 +22,7 @@ control.faa: protein file for IDs
 
 colorCodes = {"in":"#39818e",
               "out":"#c81837",
+              "new": "#6ABEFF",
               "notRefIn":"#fcd549",
               "notRefOut": "#f77524"}
 
@@ -37,8 +40,30 @@ KOToGene = defaultdict(list)
 stats = {}
 orgList = []
 
+class statKeys(Enum):
+    complete="Total (pos + neg)"
+    positives="Positives"
+    negatives= "Negatives"
+    TP="True Positives"
+    TN="True negatives"
+    FP="False positives"
+    FN="False negatives"
+    noEC="No EC found"
+
+
+
 currentGene = ""
-# open kegg file other
+
+def ECclasses(ecNumber):
+    dots= ecNumber.split(".")
+    classes = []
+    if len(dots) == 3:
+        classes = [dots[0] + "._._._",
+                   dots[0] + "." + dots[1] + "._._",
+                   dots[0] + "." + dots[1] + "." + dots[2] + "._"]  
+    
+    return classes
+
 # expand org list with files and extract IDs:
 
 proteinMapping = {}
@@ -64,10 +89,13 @@ for l in open(sys.argv[2],"r"):
                         ecToGeneOrg[org] = defaultdict(list)
                     if currentGene not in ecToGeneOrg[org][ec]:
                         ecToGeneOrg[org][ec].append(currentGene)
+                        for c in ECclasses(ec):
+                            ecToGeneOrg[org][c].append(currentGene)
 # process all found kegg pathways
 for k in kegg:
     print("Processing: {}".format(k))
     stats[k] = defaultdict(int)
+    processedIDs = set()
     # load current pathway
     isRef = True
     try:
@@ -88,20 +116,37 @@ for k in kegg:
             for l in kegg_get(g).readlines():
                 if "ORTHOLOGY" in l:
                     match = pattern.findall(l) # EC number
-                    ortho= l[12:18] 
+                    ortho= l[12:18]
+                    #print(match) 
+                    if len(match) == 0:
+                        print("{} has no EC".format(ortho))
+                        eName = set([x.split(":")[1] for x in element.name.split(" ")])
+                        if ortho not in processedIDs:
+                            stats[k][statKeys.noEC] += 1
+                            stats[k][statKeys.complete] +=1 
+                            processedIDs.add(ortho)
+                            processedIDs |= eName 
+                        elif len(eName & processedIDs) == 0:
+                            stats[k][statKeys.noEC] += 1
+                            stats[k][statKeys.complete] +=1 
+                            processedIDs |= eName 
+                            
                     if not match == None and len(match) > 0:
-                        KOToEC[element.name].extend(match[0].split(" "))
-                        KOToEC[ortho].extend(match[0].split(" "))
+                        ecNumbers = match[0].split(" ")
+                        for n in element.name.split(" "):
+                            KOToEC[n.split(":")[1]].extend(ecNumbers)
+                        KOToEC[ortho].extend(ecNumbers)
+                        #for ecNumber in ecNumbers:
+                        #    KOToEC[element.name].extend(ECclasses(ecNumber))
+                        #    KOToEC[ortho].extend(ECclasses(ecNumber))
                         
                         #print("Added {} to {}".format(match[0].split(" "),element.name.split(":")[1]))
                         #print(results)
                         #print(l)
-                    
-                
     
     # get information on EC numbers in kegg pathway
     for ec in kegg[k]:
-        print(" EC: {}".format(ec))
+        #print(" EC: {}".format(ec))
         if True:
             foundOrtho = False
             # query KEGG
@@ -131,42 +176,59 @@ for k in kegg:
             for graphic in element.graphics:
                 #graphic.name = "myEC"
                 #print("  " + graphic.name)
-                stats[k]["all"] += 1 
-                if graphic.name[:6] in KOToEC or element.name in KOToEC:
-                    if graphic.name[:6] in KOToEC:
-                        name = graphic.name[:6]
-                    else:
-                        name = element.name
-                    #print(name)
+
+                if ":" not in graphic.name:
+                    graphicName =  graphic.name.split(" ") + [x.split(":")[1] for x in element.name.split(" ")]
+                else:
+                    graphicName =  [x.split(":")[1] for x in graphic.name.split(" ")] + [x.split(":")[1] for x in element.name.split(" ")]
+                
+                graphicName = set([x.replace(".","") for x in graphicName])
+                isInRef = False    
+                if graphic.bgcolor == "#BFFFBF" or graphic.bgcolor == "#bfffbf":
+                    if len(processedIDs & graphicName) == 0:
+                        stats[k][statKeys.positives] += 1
+                    isInRef = True
+                elif isRef and len(processedIDs & graphicName) == 0:
+                    stats[k][statKeys.negatives] += 1
+
+                if len(processedIDs & graphicName) == 0:
+                    stats[k][statKeys.complete] += 1
+                orgCount = 0
+                for o in ecToGeneOrg.keys():
+                    for gN in graphicName:
+                        orgCount += len([ec for ec in KOToEC[gN] if ec in ecToGeneOrg[o]])
+
+                if len(list(filter(lambda x : x in KOToEC, graphicName))) > 0:
                         
-                    if graphic.bgcolor not in colorCodes.values():
-                        defaultBG = graphic.bgcolor
-                    orgOverview = defaultdict(list)
-                    orgCount = 0
-                    for o in ecToGeneOrg.keys():
-                        orgOverview[o] = [ec for ec in KOToEC[name] if ec in ecToGeneOrg[o]]
-                        if len(orgOverview[o]) > 0:
-                            stats[k][o] += 1
-                            orgCount += 1
                     if orgCount > 0 and isRef:
                         graphic.bgcolor = colorCodes["in"]
-                    elif isRef and orgCount == 0:
+                        if len(processedIDs & graphicName) == 0:
+                            if isInRef:
+                                stats[k][statKeys.TP] += 1
+                            else:
+                                stats[k][statKeys.FP] += 1
+                                graphic.bgcolor = colorCodes["new"]
+                    elif isRef and orgCount == 0 and isInRef:
                         graphic.bgcolor = colorCodes["out"]
+                        if len(processedIDs & graphicName) == 0 and isInRef:
+                            stats[k][statKeys.FN] += 1
                     elif orgCount > 0 and not isRef:
                         graphic.bgcolor = colorCodes["notRefIn"]
-                    elif orgCount == 0 and not isRef:                        
-                        graphic.bgcolor = colorCodes["notRefOut"]
-                        
+                        if len(processedIDs & graphicName) == 0:
+                            stats[k][statKeys.TP] +=1
+                if orgCount == 0 and not isInRef and len(processedIDs & graphicName) == 0:
+                    stats[k][statKeys.TN] += 1
+                processedIDs |= graphicName
         canvas.draw("paths/{}_{}_{}.pdf".format(k, pathway.title.replace("/","_"), keggmap))
     else:
         print("paths/{}_{}_{}.pdf exists. Skipping.".format(k, pathway.title.replace("/","_"), keggmap))
-    
+    print(stats[k])
 
 statsF = open("stats_{}.csv".format(keggmap), "w")
-statsF.write("KEGG\tTotal\t" + "\t".join(ecToGeneOrg.keys()) + "\n")
+statsF.write("KEGG\t" + "\t".join(statKeys.__members__.keys()) + "\n")
 for k in stats.keys():
-    statsF.write("{}\t{}\t".format(k, stats[k]["all"]))
-    statsF.write("\t".join([str(stats[k][o]) for o in ecToGeneOrg.keys()]))
+    statsF.write("{}\t".format(k))
+    statsF.write("\t".join([str(stats[k][s]) for s in statKeys]))
     statsF.write("\n")
 statsF.close()
 
@@ -175,7 +237,6 @@ class Gene:
         self.kegg = set()
         self.ec = set()
         self.ko = set()
-        
 
         
         

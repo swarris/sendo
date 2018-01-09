@@ -64,6 +64,7 @@ for l in open(sys.argv[1],"r"):
 for k in kegg:
     print("Processing: {}".format(k))
     stats[k] = defaultdict(int)
+    processedIDs = set()
     # load current pathway
     pathway = KGML_parser.read(kegg_get("ko{}".format(k), "kgml"))
     canvas = KGMLCanvas(pathway, import_imagemap=True)
@@ -90,12 +91,16 @@ for k in kegg:
         for element in pathway.orthologs:
             for graphic in element.graphics:
                 #graphic.name = "myEC"
-                stats[k]["all"] += 1 
+                
                 if ":" not in graphic.name:
                     graphicName =  graphic.name.split(" ")
                 else:
                     graphicName =  [x.split(":")[1] for x in graphic.name.split(" ")]
                 graphicName = set([x.replace(".","") for x in graphicName])    
+                
+                if len(processedIDs & graphicName) == 0:
+                    stats[k]["all"] += 1 
+
 
                 if len(list(filter(lambda x : x in KOToEC, graphicName))) > 0:
                     if graphic.bgcolor not in colorCodes.values():
@@ -113,7 +118,8 @@ for k in kegg:
                         for gN in graphicName:
                             orgOverview[o].extend([ec for ec in KOToEC[gN] if ec in ecToGeneOrg[o]])
                         if len(orgOverview[o]) > 0:
-                            stats[k][o] += 1
+                            if len(processedIDs & graphicName) == 0:
+                                stats[k][o] += 1
                             if o not in [mb42Name,levName]:
                                 orgCount += 1
 
@@ -134,7 +140,8 @@ for k in kegg:
                     elif orgCount > 0: # no sendo
                         graphic.name = "S {}; C {}".format(0, orgCount) 
                         graphic.bgcolor = colorCodes["notInSendo"]
-                        
+                processedIDs |= graphicName
+        
         canvas.draw("paths/{}_{}_ALL.pdf".format(k, pathway.title.replace("/","_")))
     else:
         print("paths/{}_{}_ALL.pdf exists. Skipping.".format(k, pathway.title.replace("/","_")))

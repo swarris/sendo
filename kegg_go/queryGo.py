@@ -55,7 +55,13 @@ allLabels = ["allHpoly_JEL142",
   "Ppalu_CBS455_65",
   "Cconf_CBS675_73",
   "CNE",
-  "NCR"]
+  "NCR",
+  "sendo_specific",
+  "sendo_absent",
+  "chytrid_core",
+  "allsendo_specific",
+  "allsendo_absent",
+  "allchytrid_core"]
 
 queryLabels = [  "id",
   "name",
@@ -81,7 +87,10 @@ queryLabels = [  "id",
   "allCtrlCult",
   "allChytCult",
   "allChytObl",
-  "allCtrlObl"]
+  "allCtrlObl",
+  "allsendo_specific",
+  "allsendo_absent",
+  "allchytrid_core"]
 
 print("Toplevel nodes")
 #biological_process    GO:0008150

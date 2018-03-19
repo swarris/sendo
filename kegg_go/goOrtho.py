@@ -15,7 +15,7 @@ processed = set()
 orthoGroup = sys.argv[1].split(".")[0]
 orthoData = ''.join(open(sys.argv[1], "r").readlines())
 
-
+session.run("create index on :GOTerm({})".format(orthoGroup))
 session.run("match (a:GOTerm) set a.{} = 0".format(orthoGroup))
 session.run("match (a:GOTerm) set a.all{} = 0".format(orthoGroup))
 
@@ -46,7 +46,7 @@ for f in sys.argv[3:]:
                     processed.add(line)
 
 
-session.run("match(a:GOTerm) with collect(a) as allGo unwind allGo as goTerm match (goTerm)<-[r:ISA*]-(b:GOTerm) with collect(distinct b) as allB,goTerm set goTerm.all{group} = reduce(all{group} = 0, n IN allB| all{group} + n.{group})".format(group=orthoGroup))
+session.run("match(a:GOTerm) with collect(a) as allGo unwind allGo as goTerm match (goTerm)<-[r:ISA*]-(b:GOTerm) with collect(distinct b) as allB,goTerm set goTerm.all{group} = goTerm.{group} + reduce(all{group} = 0, n IN allB| all{group} + n.{group})".format(group=orthoGroup))
 print("Toplevel nodes")
 #biological_process    GO:0008150
 #cellular_component    GO:0005575

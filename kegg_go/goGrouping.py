@@ -46,7 +46,7 @@ for f in sys.argv[2:]:
 
 
 for groupName in set(group.values()): 
-    session.run("match(a:GOTerm) with collect(a) as allGo unwind allGo as goTerm match (goTerm)<-[r:ISA*]-(b:GOTerm) with collect(distinct b) as allB,goTerm set goTerm.all{group} = reduce(all{group} = 0, n IN allB| all{group} + n.{group})".format(group=groupName))
+    session.run("match(a:GOTerm) with collect(a) as allGo unwind allGo as goTerm match (goTerm)<-[r:ISA*]-(b:GOTerm) with collect(distinct b) as allB,goTerm set goTerm.all{group} = goTerm.{group} + reduce(all{group} = 0, n IN allB| all{group} + n.{group})".format(group=groupName))
     print("Toplevel nodes")
     #biological_process    GO:0008150
     #cellular_component    GO:0005575

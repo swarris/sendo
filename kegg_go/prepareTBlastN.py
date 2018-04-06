@@ -62,7 +62,7 @@ for o in ecToGeneOrg:
     for gene in ecToGeneOrg[o]:
         for pf in pfam[gene]:
             outfile.write("{}\tDbxref\tPFAM:{}\n".format(gene, pf))
-        currentName = None
+        currentNames = set()
         if len(ecToGeneOrg[o][gene]) == 1:
             # only proteins with single EC are processed.
             ec = ecToGeneOrg[o][gene][0]
@@ -73,15 +73,13 @@ for o in ecToGeneOrg:
                     outfile.write("{}\t{}\t{}\n".format(gene, "product", ecInfo[12:].strip().strip(";")))
                 elif "SCE: " in ecInfo:
                     # get name
-                    currentName = "SCE found"
                     for geneName in re.findall("\((.*?)\)", ecInfo):
-                        print("{}\t{}\t{}\n".format(gene, "name", geneName))
-                        outfile.write("{}\t{}\t{}\n".format(gene, "name", geneName))
+                        currentNames.add(geneName)
             for go in goTerms[gene]:
                 outfile.write("{}\t{}\t{}\n".format(gene, "Ontology_term", go))
-        if currentName == None:
-            outfile.write("{}\t{}\t{}\n".format(gene, "name", "TODO"))
-            
+        if len(currentNames) == 1:
+            outfile.write("{}\t{}\t{}\n".format(gene, "name", currentNames.pop()))
+
     outfile.close()
             
         

@@ -57,6 +57,7 @@ session.run("match (a:GOTerm) set a.CtrlObl = a.UMA> 0 or a.PGR> 0 or a.MLR> 0")
 
 
 session.run("match (a:GOTerm) set a.group ='{}'".format("unclassified"))
+session.run("match (a:GOTerm) where a.ChytObl or a.ChytCult or a.CtrlCult or a.CtrlObl set a.group ='{}'".format("other"))
 session.run("match (a:GOTerm) where a.ChytObl and a.ChytCult and a.CtrlCult and a.CtrlObl set a.group ='{}'".format("all"))
 session.run("match (a:GOTerm) where not a.ChytObl and a.ChytCult and a.CtrlCult and not a.CtrlObl set a.group ='{}'".format("onlyCult"))
 session.run("match (a:GOTerm) where a.ChytObl and not a.ChytCult and not a.CtrlCult and a.CtrlObl set a.group ='{}'".format("onlyObl"))
@@ -72,6 +73,7 @@ session.run("match (a:GOTerm) set a.allCtrlCult = a.allSCE> 0 or a.allNCR> 0 or 
 session.run("match (a:GOTerm) set a.allCtrlObl = a.allUMA> 0 or a.allPGR> 0 or a.allMLR> 0")
 
 session.run("match (a:GOTerm) set a.allgroup ='{}'".format("unclassified"))
+session.run("match (a:GOTerm) where a.allChytObl or a.allChytCult or a.allCtrlCult or a.allCtrlObl set a.allgroup ='{}'".format("other"))
 session.run("match (a:GOTerm) where a.allChytObl and a.allChytCult and a.allCtrlCult and a.allCtrlObl set a.allgroup ='{}'".format("all"))
 session.run("match (a:GOTerm) where not a.allChytObl and a.allChytCult and a.allCtrlCult and not a.allCtrlObl set a.allgroup ='{}'".format("onlyCult"))
 session.run("match (a:GOTerm) where a.allChytObl and not a.allChytCult and not a.allCtrlCult and a.allCtrlObl set a.allgroup ='{}'".format("onlyObl"))

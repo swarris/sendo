@@ -4,9 +4,9 @@ from Bio import SeqIO
 from pprint import pprint
 import re
 
-hostname = "phi-host.ab.wurnet.nl"
+hostname = "wurnfs"
 username = "neo4j"
-password = "Neo4J"
+password = "cytoscape"
 
 driver = GraphDatabase.driver("bolt://{}".format(hostname), auth=basic_auth(username, password))
 session = driver.session()
@@ -34,7 +34,9 @@ class GO:
         
     def store(self,session):
         if hasattr(self, 'id') and "GO" in self.id:
-            session.run("create (a:GOTerm{{id:'{}', name:'{}', namespace:'{}'}})".format(self.id, re.sub('[^0-9a-zA-Z]+', '_', self.name), self.namespace))
+            newName= re.sub('[^0-9a-zA-Z]+', '_', self.name)
+            cytoscapeLabel = re.sub('_', ' ', newName)
+            session.run("create (a:GOTerm{{id:'{}', name:'{}', namespace:'{}', cytoscape:'{}'}})".format(self.id, newName, self.namespace, cytoscapeLabel))
             #print("create (a:GOTerm{{id:'{}', name:'{}', namespace:'{}'}})".format(self.id, self.name.replace("'","^"), self.namespace))
 
 go = []

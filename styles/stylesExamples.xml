@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <vizmap documentVersion="3.0" id="VizMap-2018_04_12-13_05">
-    <visualStyle name="SENDO">
+    <visualStyle name="SENDO Examples">
         <network>
             <visualProperty name="NETWORK_TITLE" default=""/>
             <visualProperty name="NETWORK_CENTER_X_LOCATION" default="0.0"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <vizmap documentVersion="3.0" id="VizMap-2018_04_06-14_00">
-    <visualStyle name="SENDO">
+    <visualStyle name="SENDO allgroup">
         <network>
             <visualProperty name="NETWORK_TITLE" default=""/>
             <visualProperty name="NETWORK_EDGE_SELECTION" default="true"/>

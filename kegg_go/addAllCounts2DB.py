@@ -1,3 +1,11 @@
+'''
+This script processes the interproscan XML output for GO term annotations and adds them to the neo4j database.
+Please change hostname, username and password. 
+Change levels for more or less details (line 89)
+Input: interproscan.xml [proteinFiles.fasta]+ (python3 addAllCounts2DB interproscan.xml proteinFiles*.fasta)
+Output: statistics on each protein file on level 1 and 2 GO terms  
+'''
+
 import sys
 from collections import defaultdict
 from neo4j.v1 import GraphDatabase, basic_auth
@@ -8,15 +16,6 @@ password = "cytoscape"
 
 driver = GraphDatabase.driver("bolt://{}".format(hostname), auth=basic_auth(username, password))
 session = driver.session()
-
-colorCodes = {"green":"#25DE01",
-              "orange":"#F8B10D",
-              "blue":"#0D3CFD",
-              "purple":"#8F00FF",
-              "lightblue":"#3090C7",
-              "red":"#FF0000",
-              "silver": "#C0C0C0"
-              }
 
 
 currentGene = ""

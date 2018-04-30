@@ -1,3 +1,9 @@
+"""
+Script to process Interproscan output of a reference species. The pathway PDFs are colored for TP, FP,TN and FN.  
+Input: keggmap: KEGG map identifier, kegg.txt: gene ids (<xref id=) + kegg ids, control.faa: protein file for IDs
+    (python3 drawPathways.py keggmap kegg.txt control.faa)
+"""
+
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser
@@ -11,14 +17,6 @@ import re
 
 from pprint import pprint
 
-
-
-"""
-python3 drawPathways.py keggmap kegg.txt control.faa
-keggmap: KEGG map identifier
-kegg.txt: gene ids (<xref id=) + kegg ids
-control.faa: protein file for IDs
-"""
 
 colorCodes = {"in":"#39818e",
               "out":"#c81837",

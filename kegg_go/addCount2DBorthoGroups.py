@@ -1,3 +1,9 @@
+'''
+Processes GO term statistics for orthogroups.
+Input: text file (csv for example) with genes belonging to a set of orthogroups (for example 'only in S.endo.'), interproscan XML output and [proteinFiles.fasta]+
+    (python3 addCounts2DBorthoGroups.py sendo_specific.csv interproscan.xml *.fasta)
+Output: GO terms statistics on each protein files
+'''
 import sys
 from collections import defaultdict
 from neo4j.v1 import GraphDatabase, basic_auth

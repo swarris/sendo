@@ -1,11 +1,13 @@
+"""
+This script outputs a .csv per protein file with gene identifiers and GO terms found in Interproscan results.
+python3 go2excel.py interproscan.xml proteins*.fasta
+"""
+
 from collections import defaultdict
 import sys
 import os
 from _mysql import result
 
-"""
-python3 go2excel.py go.csv
-"""
 processed = set()
 
 

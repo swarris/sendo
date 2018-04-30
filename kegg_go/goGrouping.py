@@ -1,3 +1,7 @@
+"""
+Sets per group of species statistics on the GO terms in a Neo4j database and reports these in a tsv file on level 1 and 2 of GO.
+python3 goGrouping.py interproscan.xml *.fasta
+"""
 import sys
 from collections import defaultdict
 from neo4j.v1 import GraphDatabase, basic_auth

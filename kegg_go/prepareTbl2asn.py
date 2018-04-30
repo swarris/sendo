@@ -1,3 +1,7 @@
+"""
+Annotates a species for tbl2asn use prior to submission.
+python3 prepareTbl2asn.py keggIDs.csv output/goIDs.csv interproscan.tsv species.faa
+"""
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser
@@ -15,14 +19,17 @@ ecToGeneOrg = {}
 pfam = defaultdict(set)
 goTerms = defaultdict(set)
 tsvINfo = {}
+shortName = sys.argv[5]
+geneNumber = re.compile(".*_g([0-9]+)")
 
-for f in sys.argv[4:]:
-    orgName = f.split("/")[-1].split(".")[0]
-    print(orgName)
-    for l in open(f,"r"):
-        if len(l) > 0 and l[0] == ">":
-            proteinMapping[l[1:].split(" ")[0].strip()] = orgName
-    
+f = sys.argv[4]
+orgName = f.split("/")[-1].split(".")[0]
+print(orgName)
+for l in open(f,"r"):
+    if len(l) > 0 and l[0] == ">":
+        proteinMapping[l[1:].split(" ")[0].strip()] = orgName
+
+
 for l in open(sys.argv[1],"r"):
     if "<xref id=" in l:
         currentGene = l.split('"')[1]
@@ -79,7 +86,11 @@ for o in ecToGeneOrg:
                 outfile.write("{}\t{}\t{}\n".format(gene, "Ontology_term", go))
         if len(currentNames) == 1:
             outfile.write("{}\t{}\t{}\n".format(gene, "name", currentNames.pop()))
-
+        else:
+            shortNameGene =geneNumber.findall(gene)
+            if len(shortNameGene) > 0:
+                outfile.write("{}\t{}\t{}\n".format(gene, "name", "{}{}".format(shortName, str(int(shortNameGene[0])))))
+            
     outfile.close()
             
         

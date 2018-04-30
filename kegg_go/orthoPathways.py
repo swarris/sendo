@@ -1,3 +1,8 @@
+"""
+Processes the Interproscan output for KEGG pathway information. Gets all relevant pathways from KEGG and creates for this orthogroup a TSV with statistics.
+python3 orthoPathways.py orthoGroups.tsv Interproscan.xml *.fasta
+"""
+
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser
@@ -8,12 +13,6 @@ import sys
 import os
 
 from pprint import pprint
-
-"""
-python3 drawPathways.py kegg.txt *.faa
-kegg.txt: gene ids (<xref id=) + kegg ids
-*.faa: protein files for IDs
-"""
 
 orthoGroup = sys.argv[1]
 

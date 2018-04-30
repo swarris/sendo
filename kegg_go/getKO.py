@@ -1,3 +1,7 @@
+"""
+Basic script to query KEGG for information on an KO number
+python3 getKO.py KO01234
+"""
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser

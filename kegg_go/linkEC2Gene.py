@@ -1,3 +1,9 @@
+"""
+Reports per organism which ECs are found in which genes by Interproscan TSV output (not XML!).
+python3 linkEC2Gene.py kegg.tsv listOfECsOfInterest.csv *.fasta
+"""
+
+
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser
@@ -9,12 +15,6 @@ import os
 
 from pprint import pprint
 
-"""
-python3 drawPathways.py kegg.txt ecFile *.faa'
-kegg.txt: gene ids (<xref id=) + kegg ids
-ecFile: sheet with EC numbers to be found
-*.faa': protein files for IDs
-"""
 
 ecToGene = defaultdict(list)
 ecToGeneOrg = {}

@@ -1,3 +1,7 @@
+"""
+Adds KEGG pathway information based on the Interproscan output to a Neo4j database. Calculates statistics on each of the groups.
+python3 interproscan.xml *.faa
+"""
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser

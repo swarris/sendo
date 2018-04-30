@@ -1,3 +1,7 @@
+'''
+Script for splitting a protein file in multiple files for batch processing on SLURM
+Input: single protein fasta file (python3 splitFile.py protein.fasta)
+'''
 import sys
 from Bio import SeqIO
 import os

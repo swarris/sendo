@@ -1,3 +1,8 @@
+"""
+Links enzymes to compounds and GO terms.
+python3 linkKEGG2GO.py 
+"""
+
 from Bio import SeqIO
 from Bio.KEGG.REST import *
 from Bio.KEGG.KGML import KGML_parser
@@ -35,7 +40,7 @@ for r in result:
                     match = ko.strip().split(" ")[1:]
                     for m in match:
                         print(m)
-                        session.run("match (a:enzyme{{name: '{name}'}}), (g:GOTerm{{id: 'GO:{go}'}}) merge (a)-[r:xreference]->(g)".format(name=r["name"], go=m.strip()))
+                        session.run("match (a:enzyme{{name: '{name}'}}), (g:GOTerm{{id: 'GO:{go}'}}) merge (a)-[r:crossConnect]->(g)".format(name=r["name"], go=m.strip()))
         if "PRODUCT" in ecInfoLabel or productFound:
             productFound = True
             match = compound.findall(ecInfo) 

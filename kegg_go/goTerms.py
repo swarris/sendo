@@ -1,3 +1,7 @@
+"""
+Adds the GO basic file to the Neo4j database.
+python3 goTerms.py go-basic.obo
+"""
 import sys
 from neo4j.v1 import GraphDatabase, basic_auth
 from Bio import SeqIO

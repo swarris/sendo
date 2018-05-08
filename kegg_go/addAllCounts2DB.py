@@ -21,15 +21,17 @@ session = driver.session()
 currentGene = ""
 processed = set()
 orgNames = set()
+
 for f in sys.argv[2:]:
     proteinMapping = {}
     orgName = f.split("/")[-1].split(".")[0]
     orgNames.add(orgName)
-    #print(orgName)
+    print(orgName)
     for l in open(f,"r"):
         if len(l) > 0 and l[0] == ">":
             proteinMapping[l[1:].split(" ")[0].strip()] = orgName
     #reset data
+    
     session.run("create index on :GOTerm({})".format(orgName))
     session.run("match (a:GOTerm) set a.{orgName} = 0".format(orgName = orgName))
     session.run("match (a:GOTerm) set a.all{orgName} = 0".format(orgName = orgName))
@@ -46,6 +48,7 @@ for f in sys.argv[2:]:
                 print(goID)
                 if line not in processed:
                     session.run("match (a:GOTerm {{id:'{goID}'}}) SET a.{orgName} = a.{orgName} + 1".format(goID = goID, orgName = orgName))
+    
     session.run("match(a:GOTerm) with collect(a) as allGo unwind allGo as goTerm match (goTerm)<-[r:ISA*]-(b:GOTerm) with collect(distinct b) as allB,goTerm set goTerm.all{orgName} = goTerm.{orgName} + reduce(allUp = 0, n IN allB| allUp + n.{orgName})".format(orgName = orgName))
 
 
@@ -64,7 +67,6 @@ session.run("match (a:GOTerm) where not a.ChytObl and a.ChytCult and a.CtrlCult 
 session.run("match (a:GOTerm) where a.ChytObl and not a.ChytCult and not a.CtrlCult and not a.CtrlObl set a.group ='{}'".format("onlyChytObl"))
 session.run("match (a:GOTerm) where a.ChytObl and a.ChytCult and not a.CtrlCult and not a.CtrlObl set a.group ='{}'".format("onlyChyt"))
 session.run("match (a:GOTerm) where not a.ChytObl and not a.ChytCult and a.CtrlCult and a.CtrlObl set a.group ='{}'".format("higherFungi"))
-
 
 session.run("match (a:GOTerm) set a.allChytObl = a.allMB42_proteins>0 or a.allLEV6574_proteins > 0")
 session.run("match (a:GOTerm) set a.allChytCult = a.allBd_JAM81_protein> 0 or a.allPpalu_CBS455_65> 0 or a.allBd_JEL423> 0 or a.allCconf_CBS675_73> 0 or a.allSmicro_JEL517> 0 or a.allSp_BR117_protein > 0 or a.allGp_JEL478_protein > 0 or a.allHpoly_JEL142 > 0 or a.allPhirt_CBS809_83 > 0")

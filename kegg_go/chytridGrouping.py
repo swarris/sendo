@@ -19,14 +19,13 @@ session = driver.session()
 
 
 session.run("match (a:GOTerm) set a.chytrids ='{}'".format("unclassified"))
-session.run("match (a:GOTerm) where a.ChytObl or a.ChytCult or a.CtrlCult or a.CtrlObl set a.chytrids ='{}'".format("other"))
-session.run("match (a:GOTerm) where a.ChytObl and a.ChytCult and a.CtrlCult and a.CtrlObl set a.chytrids ='{}'".format("all"))
-session.run("match (a:GOTerm) where not a.ChytObl and a.ChytCult and a.CtrlCult and not a.CtrlObl set a.chytrids ='{}'".format("onlyCult"))
-session.run("match (a:GOTerm) where a.ChytObl and not a.ChytCult and not a.CtrlCult and a.CtrlObl set a.chytrids ='{}'".format("onlyObl"))
-session.run("match (a:GOTerm) where not a.ChytObl and a.ChytCult and a.CtrlCult and a.CtrlObl set a.chytrids ='{}'".format("noChytObl"))
-session.run("match (a:GOTerm) where a.ChytObl and not a.ChytCult and not a.CtrlCult and not a.CtrlObl set a.chytrids ='{}'".format("onlyChytObl"))
-session.run("match (a:GOTerm) where a.ChytObl and a.ChytCult and not a.CtrlCult and not a.CtrlObl set a.chytrids ='{}'".format("onlyChyt"))
-session.run("match (a:GOTerm) where not a.ChytObl and not a.ChytCult and a.CtrlCult and a.CtrlObl set a.chytrids ='{}'".format("higherFungi"))
+session.run("match (a:GOTerm) where not a.ChytObl and a.ChytCult set a.chytrids ='only culturable'")
+session.run("match (a:GOTerm) where a.ChytObl and not a.ChytCult set a.chytrids ='only obligate biotrophic'")
+session.run("match (a:GOTerm) where a.ChytObl and a.ChytCult set a.chytrids ='both'")
 
+session.run("match (a:enzyme) set a.chytrids ='{}'".format("unclassified"))
+session.run("match (a:enzyme) where not a.ChytObl and a.ChytCult set a.chytrids ='only culturable'")
+session.run("match (a:enzyme) where a.ChytObl and not a.ChytCult set a.chytrids ='only obligate biotrophic'")
+session.run("match (a:enzyme) where a.ChytObl and a.ChytCult set a.chytrids ='both'")
 
 session.close()

@@ -26,6 +26,7 @@ class GO:
                 if len(l) > 2:
                     l[1] = ':'.join(l[1:])
                 if len(l) > 1:
+                    l[0] = l[0].strip()
                     if l[0] in ["id", "name", "namespace"]:
                         setattr(self, l[0], l[1].strip())
                     elif l[0] == "is_a":
@@ -65,7 +66,7 @@ for t in go:
         #print("match (a:GOTerm), (b:GOTerm) where a.id = '{}' and b.id = '{}' create unique (a)-[r:ISA]->(b)".format(t.id, link))
         session.run("match (a:GOTerm), (b:GOTerm) where a.id = '{}' and b.id = '{}' create unique (a)-[r:ISA]->(b)".format(t.id, link))
 
-
+session.close()
 
 # MATCH p=()-[r:Edge10x*]->() with p,length(p) as lP return p order by lP DESC limit 25
         

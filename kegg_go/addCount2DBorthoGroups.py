@@ -31,7 +31,9 @@ for f in sys.argv[3:]:
             proteinName = l[1:].split(" ")[0].strip()
             if proteinName in orthoData:
                 proteinMapping[proteinName] = orgName
+
     #reset data
+    """
     session.run("match (a:GOTerm) set a.fold = 0, a.up = 0, a.down = 0, a.neutral = 0, a.allUp = 0, a.allDown=0, a.allNeutral = 0, a.averageFold = 0, a.allFold = 0")
     for l in open(sys.argv[2], "r"):
         if "<xref id=" in l:
@@ -48,7 +50,7 @@ for f in sys.argv[3:]:
                     session.run("match (a:GOTerm {{id:'{}'}}) SET a.up = a.up + 1".format(goID))
 
 
-
+    """
     session.run("match(a:GOTerm) with collect(a) as allGo unwind allGo as goTerm match (goTerm)<-[r:ISA*]-(b:GOTerm) with collect(distinct b) as allB,goTerm set goTerm.allUp = reduce(allUp = 0, n IN allB| allUp + n.up)")
 
     

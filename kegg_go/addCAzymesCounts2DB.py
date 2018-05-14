@@ -21,6 +21,7 @@ session = driver.session()
 currentGene = ""
 processed = set()
 orgNames = set()
+cazymes = defaultdict(list)
 
 for f in sys.argv[2:]:
     proteinMapping = {}
@@ -33,8 +34,6 @@ for f in sys.argv[2:]:
     #reset data
     
     session.run("create index on :CAzyme({})".format(orgName))
-    session.run("match (a:CAzyme) set a.{orgName} = 0".format(orgName = orgName))
-    session.run("match (a:CAzyme) set a.all{orgName} = 0".format(orgName = orgName))
     for l in open(sys.argv[1], "r"):
         currentGene = l.split('\t')[0]
         l = l.split('\t')
@@ -42,7 +41,14 @@ for f in sys.argv[2:]:
             # Query    Subject    E-value    Subject Start    Subject End    Query Start    Query End    Subject Covered fraction
             cazyme = l[1]
             session.run("merge (a:CAzyme {{name:'{cazyme}'}})".format(cazyme = cazyme))
-            session.run("match (a:CAzyme {{name:'{cazyme}'}}) SET a.{orgName} = a.{orgName} + 1".format(cazyme = cazyme, orgName = orgName))
+            cazymes[cazyme].append(orgName)
+            
+for o in orgNames:
+    session.run("match (a:CAzyme) set a.{orgName} = 0".format(orgName = o))
+
+for c,org in cazymes.items():
+    for o in org:
+        session.run("match (a:CAzyme {{name:'{cazyme}'}}) SET a.{orgName} = a.{orgName} + 1".format(cazyme = c, orgName = o))
     
 session.run("match (a:CAzyme) set a.ChytObl = a.MB42_proteins>0 or a.LEV6574_proteins > 0")
 session.run("match (a:CAzyme) set a.ChytCult = a.Bd_JAM81_protein> 0 or a.Ppalu_CBS455_65> 0 or a.Bd_JEL423> 0 or a.Cconf_CBS675_73> 0 or a.Smicro_JEL517> 0 or a.Sp_BR117_protein > 0 or a.Gp_JEL478_protein > 0 or a.Hpoly_JEL142 > 0 or a.Phirt_CBS809_83 > 0")

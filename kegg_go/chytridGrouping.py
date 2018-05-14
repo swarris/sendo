@@ -28,4 +28,9 @@ session.run("match (a:enzyme) where not a.ChytObl and a.ChytCult set a.chytrids 
 session.run("match (a:enzyme) where a.ChytObl and not a.ChytCult set a.chytrids ='only obligate biotrophic'")
 session.run("match (a:enzyme) where a.ChytObl and a.ChytCult set a.chytrids ='both'")
 
+session.run("match (a:CAzyme) set a.chytrids ='{}'".format("unclassified"))
+session.run("match (a:CAzyme) where not a.ChytObl and a.ChytCult set a.chytrids ='only culturable'")
+session.run("match (a:CAzyme) where a.ChytObl and not a.ChytCult set a.chytrids ='only obligate biotrophic'")
+session.run("match (a:CAzyme) where a.ChytObl and a.ChytCult set a.chytrids ='both'")
+
 session.close()
